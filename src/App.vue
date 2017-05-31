@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <left-area></left-area>
-    <right-area></right-area>
+    <left-area :jsp="jsp" @update-pos="updatePosition"></left-area>
+    <right-area :jsp="jsp" :pos="pos"></right-area>
   </div>
 </template>
 
@@ -14,6 +14,19 @@
     components: {
       LeftArea,
       RightArea
+    },
+    data () {
+      return {
+        jsp: this.jsplumb.getInstance(),
+        pos: [0, 0]
+      }
+    },
+    methods: {
+      updatePosition (pos) {
+        // console.log(el)
+        this.pos = pos
+        console.log('update')
+      }
     }
   }
 </script>
@@ -40,5 +53,22 @@
   .right-area {
     width: 75%;
     margin-left: 5%;
+  }
+
+  .square {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 1px solid  #333;
+    box-sizing: border-box;
+  }
+
+  .circle {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 1px solid  #333;
+    border-radius: 50%;
+    box-sizing: border-box;
   }
 </style>

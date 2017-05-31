@@ -1,10 +1,10 @@
 <template>
   <div class="left-area">
     <div class="item">
-      <div class="square center"></div>
+      <div class="square center" ref="square"></div>
     </div>
     <div class="item">
-      <div class="circle center"></div>
+      <div class="circle center" ref="circle"></div>
     </div>
   </div>
 </template>
@@ -12,10 +12,32 @@
 <script>
   export default {
     name: 'LeftArea',
+    props: {
+      jsp: {
+        type: Object
+      }
+    },
     data () {
       return {
-
       }
+    },
+    methods: {
+      init () {
+        this.jsp.draggable([this.$refs.square, this.$refs.circle], {
+          clone: true,
+          // constrain: true,
+          // containment: true,
+          // start (params) {
+          //   console.log('start')
+          // },
+          drag: params => {
+            this.$emit('update-pos', params.pos)
+          }
+        })
+      }
+    },
+    mounted () {
+      this.init()
     }
   }
 </script>
@@ -28,25 +50,9 @@
     border-bottom: 1px solid #333;
   }
 
-  .square {
-    width: 100px;
-    height: 100px;
-    border: 1px solid  #333;
-    box-sizing: border-box;
-  }
-
-  .circle {
-    width: 100px;
-    height: 100px;
-    border: 1px solid  #333;
-    border-radius: 50%;
-    box-sizing: border-box;
-  }
-
   .center {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: calc(50% - 50px);
+    left: calc(50% - 50px);
   }
 </style>
