@@ -23,9 +23,7 @@
     },
     methods: {
       updatePosition (pos) {
-        // console.log(el)
         this.pos = pos
-        console.log('update')
       }
     }
   }
@@ -59,7 +57,8 @@
     position: absolute;
     width: 100px;
     height: 100px;
-    border: 1px solid  #333;
+    border: 1px solid #333;
+    border-radius: 5px;
     box-sizing: border-box;
   }
 
@@ -67,8 +66,17 @@
     position: absolute;
     width: 100px;
     height: 100px;
-    border: 1px solid  #333;
+    border: 1px solid #333;
     border-radius: 50%;
+    box-sizing: border-box;
+  }
+
+  .rect {
+    position: absolute;
+    top: 25px;
+    width: 100px;
+    height: 50px;
+    border: 1px solid #333;
     box-sizing: border-box;
   }
 </style>

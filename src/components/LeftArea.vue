@@ -6,6 +6,9 @@
     <div class="item">
       <div class="circle center" ref="circle"></div>
     </div>
+    <div class="item">
+      <div class="rect center" ref="rect"></div>
+    </div>
   </div>
 </template>
 
@@ -23,7 +26,7 @@
     },
     methods: {
       init () {
-        this.jsp.draggable([this.$refs.square, this.$refs.circle], {
+        this.jsp.draggable([this.$refs.square, this.$refs.circle, this.$refs.rect], {
           clone: true,
           // constrain: true,
           // containment: true,
