@@ -1,10 +1,10 @@
 <template>
   <div class="right-area" ref="right">
-    <el-dialog title="请输入文字" :visible.sync="dialogVisible">
-      <el-input v-model="nodeText" auto-complete="off"></el-input>
+    <el-dialog :title="`请输入${dialogType}`" :visible.sync="dialogVisible">
+      <el-input v-model="text" auto-complete="off"></el-input>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addNode">确 定</el-button>
+        <el-button type="primary" @click="summit">确 定</el-button>
       </div>
     </el-dialog>
     <div v-for="node in nodes"
@@ -101,7 +101,10 @@
     data () {
       return {
         dialogVisible: false,
-        nodeText: '',
+        dialogType: '',
+        text: '',
+        isAutoSetLable: false,
+        connection: null,
         dropData: null,
         index: 0,
         nodes: [],
@@ -126,9 +129,9 @@
               'Label',
               {
                 location: 0.5,
-                label: '',
+                label: '请输入条件',
                 id: 'label',
-                cssClass: 'aLabel'
+                cssClass: 'jsp-label'
               }
             ]
           ]
@@ -140,19 +143,31 @@
         this.jsp.droppable(this.$refs.right, {
           drop: data => {
             this.dropData = data
-            this.nodeText = ''
+            this.dialogType = 'node'
+            this.text = ''
             this.dialogVisible = true
             return true
           }
         })
         this._fetchNodes()
+        this.rjsp.bind('connection', info => {
+          this.connection = info.connection
+          if (!this.isAutoSetLable) {
+            this.dialogType = 'label'
+            this.text = ''
+            this.dialogVisible = true
+          } else {
+            this._addLabel()
+          }
+          // info.connection.getOverlay('label').setLabel('foo')
+        })
       },
       _createNode (dragEl, dropEl) {
         let rect = dropEl.getBoundingClientRect()
         return {
           className: dragEl.classList[0],
           id: 'node-' + ++this.index,
-          text: this.nodeText,
+          text: this.text,
           style: {
             left: this.pos[0] - rect.left + 'px',
             top: this.pos[1] - rect.top + 'px',
@@ -173,13 +188,29 @@
       _initNewNode () {
         let newNode = this.$refs.nodes[this.nodes.length - 1]
         this.rjsp.draggable(newNode, { constrain: true })
-        this._addaddEndpoints(newNode, ['Bottom'], ['Top', 'Left', 'Right'])
+        this._addaddEndpoints(newNode, ['Top', 'Bottom'], ['Left', 'Right'])
       },
-      addNode () {
+      summit () {
+        if (this.dialogType === 'node') {
+          this._addNode()
+        } else if (this.dialogType === 'label') {
+          this._addLabel()
+        }
+        this.dialogVisible = false
+      },
+      _addLabel () {
+        this.$nextTick(_ => {
+          if (this.text) {
+            this.connection.getOverlay('label').setLabel(this.text)
+          } else {
+            this.connection.hideOverlay('label')
+          }
+        })
+      },
+      _addNode () {
         let node = this._createNode(this.dropData.drag.el, this.dropData.drop.el)
         this.nodes.push(node)
         this.$nextTick(_ => this._initNewNode())
-        this.dialogVisible = false
       },
       _fetchNodes () {
         this.$http.get('/api/data').then(res => {
@@ -189,9 +220,14 @@
           this.$nextTick(_ => {
             this.$refs.nodes.map(node => {
               this.rjsp.draggable(node, { constrain: true })
-              this._addaddEndpoints(node, ['Bottom'], ['Top', 'Left', 'Right'])
-              this.connections.map(uuids => this.rjsp.connect({ uuids, editable: true }))
+              this._addaddEndpoints(node, ['Top', 'Bottom'], ['Left', 'Right'])
             })
+            this.isAutoSetLable = true
+            this.connections.map(connection => {
+              this.text = connection.label
+              this.rjsp.connect({ uuids: connection.uuids, editable: true })
+            })
+            this.isAutoSetLable = false
           })
         }).catch(err => {
           console.log(err)

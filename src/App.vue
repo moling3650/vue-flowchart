@@ -79,4 +79,21 @@
     border: 1px solid #333;
     box-sizing: border-box;
   }
+
+  .jsp-label {
+    background-color: white;
+    padding: 0.4em;
+    font: 12px sans-serif;
+    color: #444;
+    z-index: 21;
+    border: 1px dotted gray;
+    opacity: 0.8;
+    cursor: pointer;
+  }
+
+  .jsp-label.jtk-hover {
+    background-color: #5c96bc;
+    color: white;
+    border: 1px solid white;
+  }
 </style>
