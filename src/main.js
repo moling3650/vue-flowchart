@@ -2,6 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import ElementUI from 'element-ui'
+import axios from 'axios'
 import { jsPlumb } from 'jsplumb'
 import App from './App'
 
@@ -10,6 +11,7 @@ import 'element-ui/lib/theme-default/index.css'
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
+Vue.prototype.$http = axios
 Vue.prototype.jsplumb = jsPlumb
 
 /* eslint-disable no-new */

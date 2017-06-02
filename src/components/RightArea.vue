@@ -13,7 +13,8 @@
     :id="node.id"
     ref="nodes"
     :style="node.style">{{ node.text }}</div>
-    <el-button class="demo" type="primary" @click="getAllNodes">获取所有节点</el-button>
+    <!-- <el-button class="demo" type="primary" @click="saveAllNodes">保存所有节点</el-button> -->
+    <el-button class="demo" type="primary" @click="getAllConnections">获取所有连接</el-button>
   </div>
 </template>
 
@@ -60,15 +61,17 @@
     hoverPaintStyle: endpointHoverStyle,
     connectorHoverStyle: connectorHoverStyle,
     dragOptions: {},
-    overlays: [[
-      'Label',
-      {
-        location: [0.5, 1.5],
-        label: 'Drag',
-        cssClass: 'endpointSourceLabel',
-        visible: false
-      }
-    ]]
+    overlays: [
+      [
+        'Label',
+        {
+          location: [0.5, 1.5],
+          label: 'Drag',
+          cssClass: 'endpointSourceLabel',
+          visible: false
+        }
+      ]
+    ]
   }
 
   // the definition of target endpoints (will appear when the user drags a connection)
@@ -102,6 +105,8 @@
         dropData: null,
         index: 0,
         nodes: [],
+        connections: [],
+        saveData: {},
         rjsp: this.jsplumb.getInstance({
           ConnectionOverlays: [
             [
@@ -140,12 +145,13 @@
             return true
           }
         })
+        this._fetchNodes()
       },
       _createNode (dragEl, dropEl) {
         let rect = dropEl.getBoundingClientRect()
         return {
           className: dragEl.classList[0],
-          id: 'node-' + this.index++,
+          id: 'node-' + ++this.index,
           text: this.nodeText,
           style: {
             left: this.pos[0] - rect.left + 'px',
@@ -167,7 +173,7 @@
       _initNewNode () {
         let newNode = this.$refs.nodes[this.nodes.length - 1]
         this.rjsp.draggable(newNode, { constrain: true })
-        this._addaddEndpoints(newNode, ['Top', 'Bottom'], ['Left', 'Right'])
+        this._addaddEndpoints(newNode, ['Bottom'], ['Top', 'Left', 'Right'])
       },
       addNode () {
         let node = this._createNode(this.dropData.drag.el, this.dropData.drop.el)
@@ -175,8 +181,36 @@
         this.$nextTick(_ => this._initNewNode())
         this.dialogVisible = false
       },
-      getAllNodes () {
-        console.log(this.rjsp.getAllConnections().map(item => item.getAttachedElements()))
+      _fetchNodes () {
+        this.$http.get('/api/data').then(res => {
+          this.nodes = res.data.nodes
+          this.connections = res.data.connections
+          this.index = this.nodes.length
+          this.$nextTick(_ => {
+            this.$refs.nodes.map(node => {
+              this.rjsp.draggable(node, { constrain: true })
+              this._addaddEndpoints(node, ['Bottom'], ['Top', 'Left', 'Right'])
+              this.connections.map(uuids => this.rjsp.connect({ uuids, editable: true }))
+            })
+          })
+        }).catch(err => {
+          console.log(err)
+        })
+      },
+      saveAllNodes () {
+        this.$http.post('/api/data', this.nodes).then(res => {
+          console.log(res)
+        }).catch(err => console.log(err))
+        // console.log(JSON.stringfiy(this.nodes))
+      },
+      getAllConnections () {
+        this.connections = this.rjsp.getAllConnections().map(item => {
+          let [source, target] = item.getAttachedElements()
+          return [
+            `${source.elementId}_${source.anchor.type}`,
+            `${target.elementId}_${target.anchor.type}`
+          ]
+        })
       }
     },
     mounted () {
