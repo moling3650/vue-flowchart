@@ -166,7 +166,7 @@
       editLabel (label) {
         this.dialogType = 'edit-label'
         this.text = label.labelText
-        this.connection = label.component09
+        this.connection = label.component
         this.dialogVisible = true
       },
       _connection (info) {
