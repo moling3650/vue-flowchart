@@ -12,7 +12,8 @@
     :class="node.className"
     :id="node.id"
     ref="nodes"
-    :style="node.style">{{ node.text }}</div>
+    :style="node.style"
+    @dblclick="editNode(node)">{{ node.text }}</div>
     <!-- <el-button class="demo" type="primary" @click="saveAllNodes">保存所有节点</el-button> -->
     <el-button class="demo" type="primary" @click="getAllConnections">获取所有连接</el-button>
   </div>
@@ -106,6 +107,7 @@
         isAutoSetLable: false,
         connection: null,
         dropData: null,
+        node: null,
         index: 0,
         nodes: [],
         connections: [],
@@ -131,7 +133,10 @@
                 location: 0.5,
                 label: '请输入条件',
                 id: 'label',
-                cssClass: 'jsp-label'
+                cssClass: 'jsp-label',
+                events: {
+                  dblclick: this.editLabel
+                }
               }
             ]
           ]
@@ -150,17 +155,29 @@
           }
         })
         this._fetchNodes()
-        this.rjsp.bind('connection', info => {
-          this.connection = info.connection
-          if (!this.isAutoSetLable) {
-            this.dialogType = 'label'
-            this.text = ''
-            this.dialogVisible = true
-          } else {
-            this._addLabel()
-          }
-          // info.connection.getOverlay('label').setLabel('foo')
-        })
+        this.rjsp.bind('connection', this._connection)
+      },
+      editNode (node) {
+        this.dialogType = 'edit-node'
+        this.text = node.text
+        this.node = node
+        this.dialogVisible = true
+      },
+      editLabel (label) {
+        this.dialogType = 'edit-label'
+        this.text = label.labelText
+        this.connection = label.component09
+        this.dialogVisible = true
+      },
+      _connection (info) {
+        this.connection = info.connection
+        if (!this.isAutoSetLable) {
+          this.dialogType = 'label'
+          this.text = ''
+          this.dialogVisible = true
+        } else {
+          this._addLabel()
+        }
       },
       _createNode (dragEl, dropEl) {
         let rect = dropEl.getBoundingClientRect()
@@ -195,6 +212,10 @@
           this._addNode()
         } else if (this.dialogType === 'label') {
           this._addLabel()
+        } else if (this.dialogType === 'edit-node') {
+          this.node.text = this.text
+        } else if (this.dialogType === 'edit-label') {
+          this.connection.getOverlay('label').setLabel(this.text)
         }
         this.dialogVisible = false
       },
@@ -251,12 +272,6 @@
     },
     mounted () {
       this.init()
-      // this.rjsp.registerConnectionType('basic', basicType)
-      // this.rjsp.bind('click', function (conn, originalEvent) {
-      //   // if (confirm('Delete connection from ' + conn.sourceId + ' to ' + conn.targetId + '?'))
-      //   // instance.detach(conn);
-      //   conn.toggleType('basic')
-      // })
     }
   }
 </script>
@@ -277,5 +292,6 @@
     white-space: nowrap;
     font-size: 14px;
     text-align: center;
+    cursor: pointer;
   }
 </style>
