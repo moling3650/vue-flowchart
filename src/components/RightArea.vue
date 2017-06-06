@@ -15,7 +15,7 @@
     :style="node.style"
     @dblclick="editNode(node)">{{ node.text }}</div>
     <!-- <el-button class="demo" type="primary" @click="saveAllNodes">保存所有节点</el-button> -->
-    <el-button class="demo" type="primary" @click="getAllConnections">获取所有连接</el-button>
+    <el-button class="demo" type="primary" @click="getAlledges">获取所有连接</el-button>
   </div>
 </template>
 
@@ -110,7 +110,7 @@
         node: null,
         index: 0,
         nodes: [],
-        connections: [],
+        edges: [],
         saveData: {},
         rjsp: this.jsplumb.getInstance({
           ConnectionOverlays: [
@@ -236,7 +236,7 @@
       _fetchNodes () {
         this.$http.get('/api/data').then(res => {
           this.nodes = res.data.nodes
-          this.connections = res.data.connections
+          this.edges = res.data.edges
           this.index = this.nodes.length
           this.$nextTick(_ => {
             this.$refs.nodes.map(node => {
@@ -244,9 +244,9 @@
               this._addaddEndpoints(node, ['Top', 'Bottom'], ['Left', 'Right'])
             })
             this.isAutoSetLable = true
-            this.connections.map(connection => {
-              this.text = connection.label
-              this.rjsp.connect({ uuids: connection.uuids, editable: true })
+            this.edges.map(edge => {
+              this.text = edge.label
+              this.rjsp.connect({ uuids: edge.uuids, editable: true })
             })
             this.isAutoSetLable = false
           })
@@ -260,8 +260,8 @@
         }).catch(err => console.log(err))
         // console.log(JSON.stringfiy(this.nodes))
       },
-      getAllConnections () {
-        this.connections = this.rjsp.getAllConnections().map(item => {
+      getAlledges () {
+        this.edges = this.rjsp.getAllConnections().map(item => {
           let [source, target] = item.getAttachedElements()
           return [
             `${source.elementId}_${source.anchor.type}`,
