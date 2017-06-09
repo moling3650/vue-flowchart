@@ -9,6 +9,9 @@
     <div class="item">
       <div class="rect center" ref="rect"></div>
     </div>
+    <div class="item">
+      <div class="diamond center" ref="diamond"></div>
+    </div>
   </div>
 </template>
 
@@ -26,13 +29,8 @@
     },
     methods: {
       init () {
-        this.jsp.draggable([this.$refs.square, this.$refs.circle, this.$refs.rect], {
+        this.jsp.draggable([this.$refs.square, this.$refs.circle, this.$refs.rect, this.$refs.diamond], {
           clone: true,
-          // constrain: true,
-          // containment: true,
-          // start (params) {
-          //   console.log('start')
-          // },
           drag: params => {
             this.$emit('update-pos', params.pos)
           }
@@ -49,8 +47,8 @@
   .left-area > .item {
     position: relative;
     width: 100%;
-    height: 200px;
-    border-bottom: 1px solid #333;
+    height: 150px;
+    /*border-bottom: 1px solid #333;*/
   }
 
   .center {

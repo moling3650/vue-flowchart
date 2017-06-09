@@ -17,7 +17,7 @@
     },
     data () {
       return {
-        jsp: this.jsplumb.getInstance(),
+        jsp: this.$jsplumb.getInstance(),
         pos: [0, 0]
       }
     },
@@ -77,6 +77,17 @@
     width: 100px;
     height: 50px;
     border: 1px solid #333;
+    box-sizing: border-box;
+  }
+
+  .diamond {
+    position: absolute;
+    top: 25px;
+    width: 100px;
+    height: 72px;
+    background: #fff url(QQ截图20170609173054.png) 0 0 no-repeat;
+    -webkit-background-size: 100px 72px;
+    background-size: 100px 72px;
     box-sizing: border-box;
   }
 
